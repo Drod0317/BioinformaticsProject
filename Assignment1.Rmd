@@ -1,0 +1,73 @@
+---
+title: "Assignment 1"
+output:
+  word_document: default
+  html_document: default
+date: "2022-10-01"
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+```{r setup, include=FALSE, echo=FALSE}
+require("knitr")
+opts_knit$set(root.dir <- "~/Desktop/uf/FALL22/bioinformatics")
+library(org.Hs.eg.db) 
+library(magrittr)
+
+data_dir <- file.path(root.dir, "data")
+data_file <- file.path(data_dir,"GSE211669_20_04_2020.HTSeq.all.raw.txt")
+
+expression_df <- readr::read_tsv(data_file) %>%
+  tibble::column_to_rownames("GeneID")
+```
+
+## 1
+
+```{r}
+dim(expression_df) # matrix size
+nrow(expression_df) # number of genes
+
+logExpression_df <- log(expression_df + 1) #log scaling - trying to avoid dealing w/ 0
+
+perGeneExpressionRanges <- apply(logExpression_df,1, max) - apply(logExpression_df,1,min) #calculate per-gene expression ranges
+
+library(tidyverse)
+plot(density(perGeneExpressionRanges))#density plot
+
+```
+
+The expression matrix has a size of 57773 x 131, with 131 observed
+patients and 57773 observed genes. The most common gene expression range
+is e\^3 ≈ 20, suggesting a majority of the genes expressed were observed
+in similar quantities amongst test subjects.
+
+## 2
+
+```{r}
+metadata1 <- read.table("data/GSE211669-GPL11154_series_matrix.txt" , fill = TRUE, skip = 27, sep = "\t" )
+
+metadata2 <- read.table("data/GSE211669-GPL24676_series_matrix.txt" , fill = TRUE, skip = 27, sep = "\t" )
+
+
+
+
+```
+
+## 3
+
+## 4
+
+## 5
+
+## 6
+
+## 7
+
+## 8
+
+
+
+
+Note that the `echo = FALSE` parameter was added to the code chunk to
+prevent printing of the R code that generated the plot.
