@@ -10,10 +10,22 @@ editor_options:
 ---
 
 ```{r setup, include=FALSE, echo=FALSE}
+options(repos = list(CRAN="http://cran.rstudio.com/"))
 require("knitr")
 opts_knit$set(root.dir <- "~/Desktop/uf/FALL22/bioinformatics")
 library(org.Hs.eg.db) 
 library(magrittr)
+
+
+install.packages("htmltools")
+library(htmltools)
+BiocManager::install("DESeq2")
+BiocManager::install("apeglm")
+BiocManager::install("EnhancedVolcano")
+library("DESeq2")
+library(ggplot2)
+install.packages("dplyr")
+library(dplyr)
 
 data_dir <- file.path(root.dir, "data")
 data_file <- file.path(data_dir,"GSE211669_20_04_2020.HTSeq.all.raw.txt")
@@ -45,18 +57,113 @@ in similar quantities amongst test subjects.
 ## 2
 
 ```{r}
-metadata1 <- read.table("data/GSE211669-GPL11154_series_matrix.txt" , fill = TRUE, skip = 27, sep = "\t" )
+metadata56 <- read.table("data/GSE211669-GPL24676_series_matrix.txt" , fill = TRUE, skip = 27, sep = "\t")
+rowNames <- make.names(metadata56[,1],unique=TRUE)
+rownames(metadata56) <- rowNames
+metadata56<-metadata56[,-c(1)]
+metadata56<-metadata56[-c(1:4),]
 
-metadata2 <- read.table("data/GSE211669-GPL24676_series_matrix.txt" , fill = TRUE, skip = 27, sep = "\t" )
+metadata75 <- read.table("data/GSE211669-GPL11154_series_matrix.txt" , fill = TRUE, skip = 27, sep = "\t")
+rowNames <- make.names(metadata75[,1],unique=TRUE)
+rownames(metadata75) <- rowNames
+metadata75<-metadata75[,-c(1)]
+metadata75<-metadata75[-c(1:4),]
+metadata75<-metadata75[-c(22),]
+metadata75<-metadata75[-c(48),]
+metadata75<-metadata75[-c(21),]
+
+metadata <- cbind(metadata75,metadata56)
+metadata <- data.frame(t(metadata))
+
+rowNames <- colnames(expression_df)
+rownames(metadata)<-rowNames
+
+# metadataExtra <-  read.table("data/GSE209964_series_matrix.txt", fill = TRUE, skip = 27, sep = "\t") #supplement dataset that contains, amongst others, 75 relevant samples
+# 
+# filter75 <- data.frame(colnames(expression_df[1:75]))
+# toFilter <- data.frame(t(metadataExtra))
+# colNames <- make.names(toFilter[1,],unique=TRUE)
+# colnames(toFilter) <- colNames
+# metadata75 <- filter(toFilter, X.Sample_geo_accession %in% filter75[,1])
+# metadata75 <- data.frame(t(metadata75))
+# metadata75 <- metadata75[-c(1:2),]
+# 
+# rm(filter75,metadataExtra,toFilter)
+# 
+# metadata<-cbind(metadata75, metadata56)
+# metadata<- data.frame(t(metadata))
+```
 
 
+```{r}
+ddset <- DESeqDataSetFromMatrix( 
+    countData = expression_df, # Here we supply non-normalized count data 
+    colData = metadata, # Supply the `colData` with our metadata data frame 
+    design = ~ X.Sample_characteristics_ch1.4) # Supply our experimental variable to `design` 
+vsd <- vst(ddset, blind=FALSE)
 
-
+```
+```{r}
+plotPCA(vsd, intgroup=c( "X.Sample_characteristics_ch1.4"))
+ 
 ```
 
 ## 3
+```{r}
+set.seed(12345)
+
+filtered_expression_df <- expression_df %>%
+  dplyr::filter(rowSums(.) >= 1000)
+
+deseq_object <- DESeq(ddset)
+deseq_results <- results(deseq_object)
+
+deseq_results <- lfcShrink(
+  deseq_object, # The original DESeq2 object after running DESeq()
+  coef = 2, # The log fold change coefficient used in DESeq(); the default is 2.
+  res = deseq_results # The original DESeq2 results table
+)
+
+```
+```{r}
+deseq_df <- deseq_results %>%
+  # make into data.frame
+  as.data.frame() %>%
+  # the gene names are row names -- let's make them a column for easy display
+  tibble::rownames_to_column("Gene") %>%
+  # add a column for significance threshold results
+  dplyr::mutate(threshold = padj < 0.05) %>%
+  # sort by statistic -- the highest values will be genes with
+  # higher expression in RPL10 mutated samples
+  dplyr::arrange(dplyr::desc(log2FoldChange))
+
+ head(deseq_results) ## make this a table
+
+readr::write_tsv(
+  deseq_df,
+  file.path(
+    "data/results.tsv" 
+  )
+)
+
+
+volcano_plot <- EnhancedVolcano::EnhancedVolcano(
+  deseq_df,
+  lab = deseq_df$Gene,
+  x = "log2FoldChange",
+  y = "padj",
+  pCutoff = 0.01 # Loosen the cutoff since we supplied corrected p-values
+)
+
+volcano_plot
+```
+
 
 ## 4
+```{r}
+
+```
+
 
 ## 5
 
@@ -65,9 +172,6 @@ metadata2 <- read.table("data/GSE211669-GPL24676_series_matrix.txt" , fill = TRU
 ## 7
 
 ## 8
-
-
-
 
 Note that the `echo = FALSE` parameter was added to the code chunk to
 prevent printing of the R code that generated the plot.
