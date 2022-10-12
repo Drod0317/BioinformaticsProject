@@ -26,12 +26,24 @@ library("DESeq2")
 library(ggplot2)
 install.packages("dplyr")
 library(dplyr)
+install.packages("tidyverse")
 
 data_dir <- file.path(root.dir, "data")
 data_file <- file.path(data_dir,"GSE211669_20_04_2020.HTSeq.all.raw.txt")
 
+
 expression_df <- readr::read_tsv(data_file) %>%
   tibble::column_to_rownames("GeneID")
+
+library(stringr)
+df <- str_split_fixed((rownames(expression_df)),"\\|",n=9)
+
+# length(unique(df[,8]))#duplicates in gene names ask later
+# rowNames <- (df[,8])
+# rownames(expression_df)<- rowNames
+# 
+# rm(df)
+
 ```
 
 ## 1
@@ -44,7 +56,7 @@ logExpression_df <- log(expression_df + 1) #log scaling - trying to avoid dealin
 
 perGeneExpressionRanges <- apply(logExpression_df,1, max) - apply(logExpression_df,1,min) #calculate per-gene expression ranges
 
-library(tidyverse)
+
 plot(density(perGeneExpressionRanges))#density plot
 
 ```
@@ -137,7 +149,10 @@ deseq_df <- deseq_results %>%
   # higher expression in RPL10 mutated samples
   dplyr::arrange(dplyr::desc(log2FoldChange))
 
- head(deseq_results) ## make this a table
+ df<- (head( deseq_df))# table of differentially expressed genes
+ df
+ 
+ plotCounts(ddset, gene = "ENSG00000000003|X|99883667|99894988|-|11322|2968|TSPAN6|protein_coding", intgroup = "X.Sample_characteristics_ch1.4")
 
 readr::write_tsv(
   deseq_df,
@@ -156,12 +171,20 @@ volcano_plot <- EnhancedVolcano::EnhancedVolcano(
 )
 
 volcano_plot
+
+
 ```
 
 
 ## 4
 ```{r}
+library(devtools)
+install_github("jokergoo/ComplexHeatmap")
 
+ df1<- expression_df %>% filter(rownames(expression_df) %in% (deseq_df[0:200,1]))
+df1<- df1[order(rownames(df1)), ]
+
+heatmap(data.matrix(df1), name ="Top 200 differentially expressed genes in long term survivors and non-long term survivors")
 ```
 
 
