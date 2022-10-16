@@ -10,7 +10,6 @@ Are there genomic differences between long-term and short- or moderate-term surv
 https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE211669
 
 ## Team:
-- M. Nick Rodriguez
 - Seraj Saboungi
 - Devin Rodriguez
 - Dillan Maraj
