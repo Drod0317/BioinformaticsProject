@@ -1,0 +1,36 @@
+---
+title: "Assignment3"
+output: word_document
+date: "2022-10-17"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+options(repos = list(CRAN="http://cran.rstudio.com/"))
+require("knitr")
+opts_knit$set(root.dir <- "~/Desktop/uf/FALL22/bioinformatics")
+library(org.Hs.eg.db) 
+library(magrittr)
+```
+
+#2
+```{r}
+library(magrittr)
+library(dplyr) 
+library(tibble)
+
+compute_cv <- function(x) sd(x) / mean(x)
+cv <- data.frame(apply(filtered_expression_df,1 , compute_cv))
+colnames(cv) <- (c("cv"))
+summary(cv)
+#https://jdblischak.github.io/singlecell-qtl/pca-variable.html
+
+orderedByCV <- data.frame(cv %>% arrange(desc(cv))) %>% rownames_to_column('gene')
+
+V5000 <- filtered_expression_df %>% filter(rownames(filtered_expression_df) %in% (orderedByCV[0:5000,1]))#5000 most variable genes
+
+
+ #df1<- expression_df %>% filter(rownames(expression_df) %in% (deseq_df[0:200,1]))
+
+```
+
