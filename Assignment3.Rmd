@@ -11,6 +11,9 @@ require("knitr")
 opts_knit$set(root.dir <- "~/Desktop/uf/FALL22/bioinformatics")
 library(org.Hs.eg.db) 
 library(magrittr)
+install.packages("factoextra")
+install.packages("arules")
+library(stats)
 ```
 
 #2
@@ -29,8 +32,26 @@ orderedByCV <- data.frame(cv %>% arrange(desc(cv))) %>% rownames_to_column('gene
 
 V5000 <- filtered_expression_df %>% filter(rownames(filtered_expression_df) %in% (orderedByCV[0:5000,1]))#5000 most variable genes
 
+##kmeans clustering
+k3 <- kmeans(V5000, centers = 3)
+str(kmeans)
+#https://uc-r.github.io/kmeans_clustering#prep
+k4 <- kmeans(V5000, centers = 4)
+k5 <- kmeans(V5000, centers = 5)
 
- #df1<- expression_df %>% filter(rownames(expression_df) %in% (deseq_df[0:200,1]))
+
+library(factoextra)
+fviz_cluster(k3, V5000)
+fviz_cluster(k4, V5000)
+fviz_cluster(k5, V5000)
+
+##hierarchical clustering
+library(stats)
+
+hclust <- hclust(dist(V5000), method = "complete", members = NULL)
+plot(hclust)
+
+
 
 ```
 
