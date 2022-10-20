@@ -59,6 +59,55 @@ library(ConsensusClusterPlus)
 
 v5000matrix <-data.matrix(V5000, rownames.force = NA)
 results <- ConsensusClusterPlus(v5000matrix,maxK=6,reps=50,pItem=0.8,pFeature=1,title='title',clusterAlg="hc",distance="pearson",plot="screen")
-
 ```
+```{r}
+##(e) rerun each clustering method for 10, 100, 1000 and 10000 genes
+V10 <- filtered_expression_df %>% filter(rownames(filtered_expression_df) %in% (orderedByCV[0:10,1]))
+V100 <- filtered_expression_df %>% filter(rownames(filtered_expression_df) %in% (orderedByCV[0:100,1]))
+V1000 <- filtered_expression_df %>% filter(rownames(filtered_expression_df) %in% (orderedByCV[0:1000,1]))
+V10000 <- filtered_expression_df %>% filter(rownames(filtered_expression_df) %in% (orderedByCV[0:10000,1]))
+
+##10
+k3_10 <- kmeans(V10, centers = 3)
+
+hclust10 <- hclust(dist(V10), method = "complete", members = NULL)
+plot(hclust10)
+
+v10matrix <-data.matrix(V10, rownames.force = NA)
+#results10 <- ConsensusClusterPlus(v10matrix,maxK=6,reps=50,pItem=0.8,pFeature=1,title='title',clusterAlg="hc",distance="pearson",plot="screen") # returns error 'the standard deviation is zeroError in hclust(this_dist, method = innerLinkage) : 
+```
+```{r}
+##100
+k3_100 <- kmeans(V100, centers = 3)
+
+hclust100 <- hclust(dist(V100), method = "complete", members = NULL)
+plot(hclust10)
+
+v100matrix <-data.matrix(V100, rownames.force = NA)
+results100 <- ConsensusClusterPlus(v100matrix,maxK=6,reps=50,pItem=0.8,pFeature=1,title='title',clusterAlg="hc",distance="pearson",plot="screen")
+```
+
+```{r}
+#1000
+k3_1000 <- kmeans(V1000, centers = 3)
+
+hclust1000 <- hclust(dist(V1000), method = "complete", members = NULL)
+plot(hclust10)
+
+v1000matrix <-data.matrix(V1000, rownames.force = NA)
+results1000 <- ConsensusClusterPlus(v1000matrix,maxK=6,reps=50,pItem=0.8,pFeature=1,title='title',clusterAlg="hc",distance="pearson",plot="screen")
+```
+```{r}
+#10000
+k3_10000 <- kmeans(V10000, centers = 3)
+
+hclust10000 <- hclust(dist(V10000), method = "complete", members = NULL)
+plot(hclust10)
+
+v10000matrix <-data.matrix(V10000, rownames.force = NA)
+results10000 <- ConsensusClusterPlus(v10000matrix,maxK=6,reps=50,pItem=0.8,pFeature=1,title='title',clusterAlg="hc",distance="pearson",plot="screen")
+```
+
+
+
 
