@@ -38,12 +38,14 @@ str(kmeans)
 #https://uc-r.github.io/kmeans_clustering#prep
 k4 <- kmeans(V5000, centers = 4)
 k5 <- kmeans(V5000, centers = 5)
+k6 <- kmeans(V5000, centers = 6)
 
 
 library(factoextra)
 fviz_cluster(k3, V5000)
 fviz_cluster(k4, V5000)
 fviz_cluster(k5, V5000)
+fviz_cluster(k6, V5000)
 
 ##hierarchical clustering
 library(stats)
@@ -51,7 +53,12 @@ library(stats)
 hclust <- hclust(dist(V5000), method = "complete", members = NULL)
 plot(hclust)
 
+##consensus clustering 
+BiocManager::install("ConsensusClusterPlus")
+library(ConsensusClusterPlus)
 
+v5000matrix <-data.matrix(V5000, rownames.force = NA)
+results <- ConsensusClusterPlus(v5000matrix,maxK=6,reps=50,pItem=0.8,pFeature=1,title='title',clusterAlg="hc",distance="pearson",plot="screen")
 
 ```
 
