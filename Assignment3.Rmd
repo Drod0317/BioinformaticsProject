@@ -31,6 +31,7 @@ summary(cv)
 orderedByCV <- data.frame(cv %>% arrange(desc(cv))) %>% rownames_to_column('gene')
 
 V5000 <- filtered_expression_df %>% filter(rownames(filtered_expression_df) %in% (orderedByCV[0:5000,1]))#5000 most variable genes
+V5000 <- t(V5000)
 
 ##kmeans clustering
 k3 <- kmeans(V5000, centers = 3)
@@ -63,12 +64,24 @@ results <- ConsensusClusterPlus(v5000matrix,maxK=6,reps=50,pItem=0.8,pFeature=1,
 ```{r}
 ##(e) rerun each clustering method for 10, 100, 1000 and 10000 genes
 V10 <- filtered_expression_df %>% filter(rownames(filtered_expression_df) %in% (orderedByCV[0:10,1]))
+V10 <- t(V10)
 V100 <- filtered_expression_df %>% filter(rownames(filtered_expression_df) %in% (orderedByCV[0:100,1]))
+V100 <- t(V100)
 V1000 <- filtered_expression_df %>% filter(rownames(filtered_expression_df) %in% (orderedByCV[0:1000,1]))
+V1000 <- t(V1000)
 V10000 <- filtered_expression_df %>% filter(rownames(filtered_expression_df) %in% (orderedByCV[0:10000,1]))
+V10000 <- t(V10000)
 
 ##10
 k3_10 <- kmeans(V10, centers = 3)
+k4_10 <- kmeans(V10, centers = 4)
+k5_10 <- kmeans(V10, centers = 5)
+k6_10 <- kmeans(V10, centers = 6)
+
+fviz_cluster(k3, V10)
+fviz_cluster(k4, V10)
+fviz_cluster(k5, V10)
+fviz_cluster(k6, V10)
 
 hclust10 <- hclust(dist(V10), method = "complete", members = NULL)
 plot(hclust10)
@@ -79,6 +92,14 @@ v10matrix <-data.matrix(V10, rownames.force = NA)
 ```{r}
 ##100
 k3_100 <- kmeans(V100, centers = 3)
+k4_100 <- kmeans(V100, centers = 4)
+k5_100 <- kmeans(V100, centers = 5)
+k6_100 <- kmeans(V100, centers = 6)
+
+fviz_cluster(k3, V100)
+fviz_cluster(k4, V100)
+fviz_cluster(k5, V100)
+fviz_cluster(k6, V100)
 
 hclust100 <- hclust(dist(V100), method = "complete", members = NULL)
 plot(hclust10)
@@ -90,6 +111,14 @@ results100 <- ConsensusClusterPlus(v100matrix,maxK=6,reps=50,pItem=0.8,pFeature=
 ```{r}
 #1000
 k3_1000 <- kmeans(V1000, centers = 3)
+k4_1000 <- kmeans(V1000, centers = 4)
+k5_1000 <- kmeans(V1000, centers = 5)
+k6_1000 <- kmeans(V1000, centers = 6)
+
+fviz_cluster(k3, V1000)
+fviz_cluster(k4, V1000)
+fviz_cluster(k5, V1000)
+fviz_cluster(k6, V1000)
 
 hclust1000 <- hclust(dist(V1000), method = "complete", members = NULL)
 plot(hclust10)
@@ -100,6 +129,14 @@ results1000 <- ConsensusClusterPlus(v1000matrix,maxK=6,reps=50,pItem=0.8,pFeatur
 ```{r}
 #10000
 k3_10000 <- kmeans(V10000, centers = 3)
+k4_10000 <- kmeans(V10000, centers = 4)
+k5_10000 <- kmeans(V10000, centers = 5)
+k6_10000 <- kmeans(V10000, centers = 6)
+
+fviz_cluster(k3, V10000)
+fviz_cluster(k4, V10000)
+fviz_cluster(k5, V10000)
+fviz_cluster(k6, V10000)
 
 hclust10000 <- hclust(dist(V10000), method = "complete", members = NULL)
 plot(hclust10)
