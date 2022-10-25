@@ -64,11 +64,18 @@ library(ConsensusClusterPlus)
 v5000matrix <-data.matrix(V5000, rownames.force = NA)
 results <- ConsensusClusterPlus(v5000matrix,maxK=4,reps=50,pItem=0.8,pFeature=1,title='title',clusterAlg="hc",distance="pearson",plot="screen")
 ```
+##d
+  Using kmeans and an initial cluster number of 2, one small cluster is nested within a cluster that was much larger in terms of area and membership. With k=3, the small nested cluster persists, but the larger cluster is split into two. As in the previous case, there is a cluster with a membership that is much larger than the other clusters. The same pattern can be oberved for k=4.
 
-Each clustering method
+  hierarchical clustering
 
-```{r}
+  Using consensus clustering, our delta area graph shows a cluster number of 3 as the most significant. The consensus clustering graph shows a majority of membership in one group with a smaller group and an even smaller group next to that. With an increase to a cluster number of 4, the appearance of a larger group emerges. This group is possibly analogous to the nested group emergin in the kmeans clustering with a k=4 as well.
+  
+In each of the methods, the proportion of cluster membership does not seem to reflect that of the control groups for our experiment, which is roughly half and half.
+
+
 ##(e) rerun each clustering method for 10, 100, 1000 and 10000 genes
+```{r}
 V10 <- filtered_expression_df %>% filter(rownames(filtered_expression_df) %in% (orderedByCV[0:10,1]))
 V10 <- t(V10)
 V100 <- filtered_expression_df %>% filter(rownames(filtered_expression_df) %in% (orderedByCV[0:100,1]))
