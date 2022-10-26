@@ -44,8 +44,6 @@ str(kmeans)
 #https://uc-r.github.io/kmeans_clustering#prep
 k4 <- kmeans(V5000, centers = 4)
 
-
-
 library(factoextra)
 fviz_cluster(k2, V5000)
 fviz_cluster(k3, V5000)
@@ -69,7 +67,7 @@ results <- ConsensusClusterPlus(v5000matrix,maxK=4,reps=50,pItem=0.8,pFeature=1,
 
   The hierarchical clustering function doesn't appear to have chosen a k or been determined by any input for k. Instead it llooks like the clustering resolved down to each individual sample while providing a metric for cluster proximity with its height axis. In this case, the three or four primary clusters still maintain an extreme inequality in terms of sample membership, similar to our kmeans clustering results.
 
-  Using consensus clustering, our delta area graph shows a cluster number of 3 as the most significant. The consensus clustering graph shows a majority of membership in one group with a smaller group and an even smaller group next to that. With an increase to a cluster number of 4, the appearance of a larger group emerges. This group is possibly analogous to the nested group emergin in the kmeans clustering with a k=4 as well.
+  Using consensus clustering, our delta area graph no appreciable difference in consensus beyond k-3. The consensus clustering graph shows a majority of membership in one group with a smaller group and an even smaller group next to that. With an increase to a cluster number of 4, the appearance of a larger group emerges. This group is possibly analogous to the nested group that appeared in the k=4 kmeans clustering.
   
 In each of the methods, the proportion of cluster membership does not seem to reflect that of the control groups for our experiment, which is roughly half and half.
 
@@ -153,6 +151,21 @@ plot(hclust10000)
 v10000matrix <-data.matrix(V10000, rownames.force = NA)
 results10000 <- ConsensusClusterPlus(v10000matrix,maxK=4,reps=50,pItem=0.8,pFeature=1,title='title',clusterAlg="hc",distance="pearson",plot="screen")
 ```
+#3 Heatmaps and Dendrograms
+
+```{r}
+library(devtools)
+install_github("jokergoo/ComplexHeatmap")
+library(ComplexHeatmap)
+library(cluster)
+Heatmap(V1000,top_annotation = HeatmapAnnotation(foo = anno_block(gp = gpar(fill = 2:4))),
+    column_km = 3, name = "1000 diff ex genes", cluster_rows = hclust1000, column_title = "genes", row_title = "samples")
+##breaks w/5000 genes, so we used 1000 instead
+
+
+
+```
+
 
 
 
