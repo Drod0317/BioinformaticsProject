@@ -1,0 +1,114 @@
+---
+title: "Assignment 3"
+output: word_document
+date: "2022-10-24"
+---
+
+  ```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+options(repos = list(CRAN="http://cran.rstudio.com/"))
+require("knitr")
+opts_knit$set(root.dir <- "~/Desktop/uf/FALL22/bioinformatics")
+library(org.Hs.eg.db) 
+library(magrittr)
+install.packages("factoextra")
+install.packages("arules")
+library(stats)
+```
+
+#2
+```{r}
+library(magrittr)
+library(dplyr) 
+library(tibble)
+
+compute_cv <- function(x) sd(x) / mean(x)
+cv <- data.frame(apply(filtered_expression_df,1 , compute_cv))
+colnames(cv) <- (c("cv"))
+summary(cv)
+#https://jdblischak.github.io/singlecell-qtl/pca-variable.html
+
+orderedByCV <- data.frame(cv %>% arrange(desc(cv))) %>% rownames_to_column('gene')
+
+V5000 <- filtered_expression_df %>% filter(rownames(filtered_expression_df) %in% (orderedByCV[0:5000,1]))#5000 most variable genes
+
+##kmeans clustering
+k3 <- kmeans(V5000, centers = 3)
+str(kmeans)
+#https://uc-r.github.io/kmeans_clustering#prep
+k4 <- kmeans(V5000, centers = 4)
+k5 <- kmeans(V5000, centers = 5)
+k6 <- kmeans(V5000, centers = 6)
+
+
+library(factoextra)
+fviz_cluster(k3, V5000)
+fviz_cluster(k4, V5000)
+fviz_cluster(k5, V5000)
+fviz_cluster(k6, V5000)
+
+##hierarchical clustering
+library(stats)
+
+hclust <- hclust(dist(V5000), method = "complete", members = NULL)
+plot(hclust)
+
+##consensus clustering 
+BiocManager::install("ConsensusClusterPlus")
+library(ConsensusClusterPlus)
+
+v5000matrix <-data.matrix(V5000, rownames.force = NA)
+results <- ConsensusClusterPlus(v5000matrix,maxK=6,reps=50,pItem=0.8,pFeature=1,title='title',clusterAlg="hc",distance="pearson",plot="screen")
+```
+```{r}
+##(e) rerun each clustering method for 10, 100, 1000 and 10000 genes
+V10 <- filtered_expression_df %>% filter(rownames(filtered_expression_df) %in% (orderedByCV[0:10,1]))
+V100 <- filtered_expression_df %>% filter(rownames(filtered_expression_df) %in% (orderedByCV[0:100,1]))
+V1000 <- filtered_expression_df %>% filter(rownames(filtered_expression_df) %in% (orderedByCV[0:1000,1]))
+V10000 <- filtered_expression_df %>% filter(rownames(filtered_expression_df) %in% (orderedByCV[0:10000,1]))
+
+##10
+k3_10 <- kmeans(V10, centers = 3)
+
+hclust10 <- hclust(dist(V10), method = "complete", members = NULL)
+plot(hclust10)
+
+v10matrix <-data.matrix(V10, rownames.force = NA)
+#results10 <- ConsensusClusterPlus(v10matrix,maxK=6,reps=50,pItem=0.8,pFeature=1,title='title',clusterAlg="hc",distance="pearson",plot="screen") # returns error 'the standard deviation is zeroError in hclust(this_dist, method = innerLinkage) : 
+```
+```{r}
+##100
+k3_100 <- kmeans(V100, centers = 3)
+
+hclust100 <- hclust(dist(V100), method = "complete", members = NULL)
+plot(hclust10)
+
+v100matrix <-data.matrix(V100, rownames.force = NA)
+results100 <- ConsensusClusterPlus(v100matrix,maxK=6,reps=50,pItem=0.8,pFeature=1,title='title',clusterAlg="hc",distance="pearson",plot="screen")
+```
+
+```{r}
+#1000
+k3_1000 <- kmeans(V1000, centers = 3)
+
+hclust1000 <- hclust(dist(V1000), method = "complete", members = NULL)
+plot(hclust10)
+
+v1000matrix <-data.matrix(V1000, rownames.force = NA)
+results1000 <- ConsensusClusterPlus(v1000matrix,maxK=6,reps=50,pItem=0.8,pFeature=1,title='title',clusterAlg="hc",distance="pearson",plot="screen")
+```
+```{r}
+#10000
+k3_10000 <- kmeans(V10000, centers = 3)
+
+hclust10000 <- hclust(dist(V10000), method = "complete", members = NULL)
+plot(hclust10)
+
+v10000matrix <-data.matrix(V10000, rownames.force = NA)
+results10000 <- ConsensusClusterPlus(v10000matrix,maxK=6,reps=50,pItem=0.8,pFeature=1,title='title',clusterAlg="hc",distance="pearson",plot="screen")
+```
+
+
+
+
+
