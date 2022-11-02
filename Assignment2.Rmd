@@ -37,12 +37,24 @@ expression_df <- readr::read_tsv(data_file) %>%
 
 library(stringr)
 df <- str_split_fixed((rownames(expression_df)),"\\|",n=9)
+rownames(expression_df) <- make.names(df[,8], unique = "TRUE")
 
-#length(unique(df[,8]))#duplicates in gene names ask later
-# rowNames <- (df[,8])
-# rownames(expression_df)<- rowNames
-# 
-# rm(df)
+length(unique(df[,8]))
+
+mapped_list <- mapIds(
+  org.Hs.eg.db, # Replace with annotation package for your organism
+  keys = df[,1],
+  keytype = "ENSEMBL", # Replace with the type of gene identifiers in your data
+  column = "SYMBOL", # The type of gene identifiers you would like to map to
+)
+
+mapped_df <- mapped_list %>%
+  tibble::enframe(name = "Ensembl", value = "Symbol")
+  # enframe() makes a `list` column; we will simplify it with unnest()
+  # This will result in one row of our data frame per list item
+
+sum(is.na(mapped_df$Symbol))
+
 
 ```
 
@@ -52,7 +64,7 @@ df <- str_split_fixed((rownames(expression_df)),"\\|",n=9)
 dim(expression_df) # matrix size
 nrow(expression_df) # number of genes
 
-logExpression_df <- log(expression_df + 1) #log scaling - trying to avoid dealing w/ 0
+logExpression_df <- log(expression_df + 1, 2) #log scaling - trying to avoid dealing w/ 0
 
 perGeneExpressionRanges <- apply(logExpression_df,1, max) - apply(logExpression_df,1,min) #calculate per-gene expression ranges
 
@@ -145,14 +157,13 @@ deseq_df <- deseq_results %>%
   tibble::rownames_to_column("Gene") %>%
   # add a column for significance threshold results
   dplyr::mutate(threshold = padj < 0.05) %>%
-  # sort by statistic -- the highest values will be genes with
-  # higher expression in RPL10 mutated samples
+  
   dplyr::arrange(dplyr::desc(log2FoldChange))
 
  df<- (head( deseq_df))# table of differentially expressed genes
  df
  
- plotCounts(ddset, gene = "ENSG00000000003|X|99883667|99894988|-|11322|2968|TSPAN6|protein_coding", intgroup = "X.Sample_characteristics_ch1.4")
+ plotCounts(ddset, gene = "TSPAN6", intgroup = "X.Sample_characteristics_ch1.4")
 
 readr::write_tsv(
   deseq_df,
@@ -180,6 +191,7 @@ volcano_plot
 ```{r}
 library(devtools)
 install_github("jokergoo/ComplexHeatmap")
+library()
 
  df1<- expression_df %>% filter(rownames(expression_df) %in% (deseq_df[0:200,1]))
 df1<- df1[order(rownames(df1)), ]
@@ -189,6 +201,29 @@ heatmap(data.matrix(df1), name ="Top 200 differentially expressed genes in long 
 
 
 ## 5
+###i top go and gene ontology
+```{r}
+if (!require("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+BiocManager::install(version = "3.15")
+
+
+BiocManager::install("topGO")
+BiocManager::install("GO.db")
+BiocManager::install("biomaRt")
+BiocManager::install("Rgraphviz")
+ 
+# Load the required R packages
+library(topGO)
+library(GO.db)
+library(biomaRt)
+library(Rgraphviz)
+```
+```{r}
+filtered_expression_df
+```
+
+
 
 ## 6
 
